@@ -4,7 +4,9 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  disableNetwork,
   doc,
+  enableNetwork,
   getDoc,
   getDocs,
   query,
@@ -135,6 +137,11 @@ export class FirebaseLedgerRepository implements LedgerRepository {
 
   subscribe(userId: string, onSnapshot: (s: AppSnapshot) => void, onError?: (e: Error) => void): Unsubscribe {
     return watchSnapshot(this.db, userId, onSnapshot, onError);
+  }
+
+  async reconnect(): Promise<void> {
+    await disableNetwork(this.db);
+    await enableNetwork(this.db);
   }
 
   // ---------------------------------------------------------------- tài khoản

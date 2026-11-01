@@ -59,6 +59,18 @@ export function Loading() {
   );
 }
 
+/** Thanh báo đồng bộ nằm đè phía dưới màn hình: lỗi kết nối hoặc mạng chậm, kèm nút thử lại. */
+export function SyncBanner({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <SafeAreaView edges={['bottom']} style={styles.banner} pointerEvents="box-none">
+      <View style={styles.bannerBody}>
+        <Text style={{ color: colors.warnFg, flex: 1, fontSize: 14 }}>{message}</Text>
+        <Button title="Thử lại" kind="text" onPress={onRetry} />
+      </View>
+    </SafeAreaView>
+  );
+}
+
 export function Card({ children, style }: { children: ReactNode; style?: ViewStyle }) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
@@ -246,6 +258,20 @@ export function Field({
 }
 
 const styles = StyleSheet.create({
+  // Chừa chỗ cho thanh tab ở dưới.
+  banner: { position: 'absolute', left: 0, right: 0, bottom: 56 },
+  bannerBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    margin: 12,
+    paddingLeft: 16,
+    paddingRight: 4,
+    borderRadius: 12,
+    backgroundColor: colors.warnBg,
+    borderWidth: 1,
+    borderColor: colors.lineStrong,
+  },
   screen: { flex: 1, backgroundColor: colors.paper },
   pad: { padding: 16, gap: 12 },
   card: {

@@ -38,6 +38,12 @@ export interface LedgerRepository {
   ): Unsubscribe;
 
   /**
+   * Ngắt rồi nối lại kết nối tới server ngay, bỏ qua khoảng chờ tăng dần của SDK (có thể tới cả phút sau vài
+   * lần thất bại, vd khi app vừa trở lại từ nền mà mạng chưa sẵn sàng). Listener đang mở vẫn giữ nguyên.
+   */
+  reconnect(): Promise<void>;
+
+  /**
    * Tìm tài khoản theo đúng số điện thoại (chuẩn hoá trước khi so). Không tìm gần đúng, không liệt kê,
    * để không ai dò được danh bạ người dùng. Không thấy → null. Số sai định dạng → LedgerError.
    */

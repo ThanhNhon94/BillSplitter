@@ -1,6 +1,7 @@
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { LogBox, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppProvider, useApp } from "@/state/AppContext";
 import {
@@ -8,11 +9,15 @@ import {
   setupNotifications,
   useInboxNotifications,
 } from "@/state/notifications";
-import { Loading } from "@/ui/components";
+import { Loading, SyncBanner } from "@/ui/components";
 import { colors } from "@/ui/theme";
 
+// Mất mạng là chuyện thường trên điện thoại: SDK tự thử lại và SyncBanner đã báo cho người dùng,
+// nên không bật màn đỏ LogBox (log vẫn in ra terminal Metro).
+LogBox.ignoreLogs(["Could not reach Cloud Firestore backend"]);
+
 function Gate() {
-  const { authReady, userId, snapshot } = useApp();
+  const { authReady, userId, snapshot, syncError, slow, retry } = useApp();
   useInboxNotifications(userId, snapshot);
 
   useEffect(() => {
@@ -27,29 +32,39 @@ function Gate() {
   }, []);
 
   if (!authReady) return <Loading />;
+  const banner =
+    userId == null
+      ? null
+      : (syncError ??
+        (slow && !snapshot
+          ? "Mạng chậm, đang tải dữ liệu lâu hơn bình thường…"
+          : null));
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.brand },
-        headerTintColor: "#fff",
-        headerTitleStyle: { fontWeight: "700" },
-        contentStyle: { backgroundColor: colors.paper },
-      }}
-    >
-      <Stack.Protected guard={!userId}>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-      </Stack.Protected>
-      <Stack.Protected guard={!!userId}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="create-group" options={{ title: "Nhóm mới" }} />
-        <Stack.Screen name="group/[id]" options={{ title: "Nhóm" }} />
-        <Stack.Screen name="group/settle" options={{ title: "Tất toán" }} />
-        <Stack.Screen name="bill/[id]" options={{ title: "Hoá đơn" }} />
-        <Stack.Screen name="bill/edit" options={{ title: "Hoá đơn" }} />
-        <Stack.Screen name="debt/[key]" options={{ title: "Khoản nợ" }} />
-        <Stack.Screen name="qr-setup" options={{ title: "QR nhận tiền" }} />
-      </Stack.Protected>
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.brand },
+          headerTintColor: "#fff",
+          headerTitleStyle: { fontWeight: "700" },
+          contentStyle: { backgroundColor: colors.paper },
+        }}
+      >
+        <Stack.Protected guard={!userId}>
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+        </Stack.Protected>
+        <Stack.Protected guard={!!userId}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="create-group" options={{ title: "Nhóm mới" }} />
+          <Stack.Screen name="group/[id]" options={{ title: "Nhóm" }} />
+          <Stack.Screen name="group/settle" options={{ title: "Tất toán" }} />
+          <Stack.Screen name="bill/[id]" options={{ title: "Hoá đơn" }} />
+          <Stack.Screen name="bill/edit" options={{ title: "Hoá đơn" }} />
+          <Stack.Screen name="debt/[key]" options={{ title: "Khoản nợ" }} />
+          <Stack.Screen name="qr-setup" options={{ title: "QR nhận tiền" }} />
+        </Stack.Protected>
+      </Stack>
+      {banner && <SyncBanner message={banner} onRetry={retry} />}
+    </View>
   );
 }
 

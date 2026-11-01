@@ -42,6 +42,16 @@ describe('tài khoản và tìm kiếm', () => {
     expect((await errorOf(getDocs(collection(a.db, 'users'))))?.code).toBe('permission-denied');
   });
 
+  it('nối lại mạng (reconnect) không làm chết listener: vẫn nhận thay đổi từ máy khác', async () => {
+    const a = await newUser('Đạt');
+    const b = await newUser('Tuấn');
+    await a.ledger.reconnect();
+    await a.ledger.reconnect();
+    const groupId = await b.ledger.createGroup('Sau khi nối lại', b.id, [a.id], []);
+    const s = await a.until((x) => x.group(groupId) != null, 'Đạt thấy nhóm mới');
+    expect(s.membersOf(groupId)).toEqual(expect.arrayContaining([a.id, b.id]));
+  });
+
   it('đổi tên và khai QR nhận tiền', async () => {
     const a = await newUser('Đạt');
     expect((await errorOf(a.ledger.renameUser(a.id, '   ')))?.message).toBe('Tên không được để trống.');

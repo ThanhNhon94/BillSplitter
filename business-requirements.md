@@ -51,7 +51,7 @@ Status legend: **Done** = implemented in v0.4.0 · **Partial** = implemented wit
 |----|-------------|--------|-------|
 | FR13 | The system shall allow a user to edit their profile (name, avatar). | **Partial.** Name editable; avatar is the initial on a fixed colour. Photo upload not planned. | `src/app/(tabs)/profile.tsx` |
 | FR14 | The system shall allow a user to leave a group. | **Done.** Blocked while the user still owes or is owed in that group. Old bills keep the user's share. | `FirebaseLedgerRepository.leaveGroup` |
-| FR15 | The system shall allow the app to function offline, caching data locally and syncing once the device reconnects. | **Partial.** Live sync across devices while online (Firestore). React Native has no persistent Firestore cache, so the app needs a connection to start and write. | — |
+| FR15 | The system shall allow the app to function offline, caching data locally and syncing once the device reconnects. | **Partial.** Live sync across devices while online (Firestore). React Native has no persistent Firestore cache, so the app needs a connection to start and write. When the connection drops or a listener fails, the app re-subscribes with back-off (and immediately on returning to the foreground) and shows a banner with a retry button instead of loading silently. | — |
 
 #### 2.5 Added by ChiaBill
 
